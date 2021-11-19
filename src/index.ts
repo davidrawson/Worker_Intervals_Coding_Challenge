@@ -15,28 +15,30 @@ interface Worker {
 export async function solveFirstQuestion(
   inputFilePath: string
 ): Promise<string> {
-  // TODO: Solve me!
   const inputFile: string[] = await readInputFile(inputFilePath);
   const workers: Worker[] = processInputFile(inputFile);
   // Sort earliest to latest.
-  const sortedWorkers = sortForEarliestInterval(workers);
-  // Convert first to UTC
-  // const earliestUTC = workers[0].intervals[0].start.getUTCDate();
-  // Reeturn
+  const sortedWorkerIntervals = sortWorkerEarliestIntervals(workers);
+  const sortedWorkers = sortForEarliestInterval(sortedWorkerIntervals);
 
-  // format(workers[0].intervals[0].start, "SSS");
-
-  // console.log("Final format ", workers[0].intervals[0].start);
-  // return formatISO(workers[0].intervals[0].start);
-  // return earliestUTC;
-  return workers[0].intervals[0].start.toISOString();
+  return sortedWorkers[0].intervals[0].start.toISOString();
 }
 
 export async function solveSecondQuestion(
   inputFilePath: string
 ): Promise<string> {
   // TODO: Solve me!
-  return "";
+  const inputFile: string[] = await readInputFile(inputFilePath);
+  const workers: Worker[] = processInputFile(inputFile);
+
+  const sortedWorkerIntervals = sortWorkerLatestIntervals(workers);
+  const sortedWorkers = sortForLatestInterval(sortedWorkerIntervals);
+
+  // const sortedWorkers = sortForEarliestInterval(workers);
+
+  // const latestInterval = sortForLatestInterval(sortedWorkers);
+
+  return sortedWorkers[0].intervals[0].end.toISOString();
 }
 
 export async function solveThirdQuestion(
@@ -91,7 +93,7 @@ const processInputFile = (inputFile: Array<string>) => {
   return workers;
 };
 
-const sortForEarliestInterval = (workers: Worker[]) => {
+const sortWorkerEarliestIntervals = (workers: Worker[]) => {
   for (let worker of workers) {
     worker.intervals.sort((a, b) => {
       let dateA = a.start;
@@ -107,6 +109,11 @@ const sortForEarliestInterval = (workers: Worker[]) => {
       return 0;
     });
   }
+
+  return workers;
+};
+
+const sortForEarliestInterval = (workers: Worker[]) => {
   workers.sort((a, b) => {
     let dateA = a.intervals[0].start;
     let dateB = b.intervals[0].start;
@@ -115,6 +122,44 @@ const sortForEarliestInterval = (workers: Worker[]) => {
       return -1;
     }
     if (dateA > dateB) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return workers;
+};
+
+const sortWorkerLatestIntervals = (workers: Worker[]) => {
+  for (let worker of workers) {
+    worker.intervals.sort((a, b) => {
+      let dateA = a.end;
+      let dateB = b.end;
+
+      if (dateA > dateB) {
+        return -1;
+      }
+      if (dateA < dateB) {
+        return 1;
+      }
+
+      return 0;
+    });
+  }
+
+  return workers;
+};
+
+const sortForLatestInterval = (workers: Worker[]) => {
+  workers.sort((a, b) => {
+    let dateA = a.intervals[a.intervals.length - 1].end;
+    let dateB = b.intervals[b.intervals.length - 1].end;
+
+    if (dateA > dateB) {
+      return -1;
+    }
+    if (dateA < dateB) {
       return 1;
     }
 
