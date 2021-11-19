@@ -1,17 +1,3 @@
-# Appointedd TypeScript Programming Challenge
-
-Hi there! 👋
-
-This challenge is designed to allow you to showcase your TypeScript programming skills. There are no requirements apart from the fact that you must use TypeScript. You are welcome to use any libraries you see fit and any online or offline materials to help you program a solution.
-
-Don’t worry if you can’t create a perfect solution. If you write down any shortcomings of your code or if you describe how you would approach the problem we’ll take that into consideration!
-
-## Submission
-
-Please submit your solution via email with either a link to your forked GitHub repository containing your solution or a zip file containing your repository.
-
-Any supplemental notes can be included in your email, the `README.md` file of your repository, or as comments in your code.
-
 ## Getting Started
 
 ### System Requirements
