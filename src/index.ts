@@ -55,7 +55,7 @@ export async function solveThirdQuestion(
   // this should really be of type Interval[]
   const overlapIntervals: any = checkForOverlaps(allIntervals);
 
-  console.log("overlapIntervals ", overlapIntervals);
+  // console.log("overlapIntervals ", overlapIntervals);
 
   // here, I am trying to...remove the fragments.
   overlapIntervals.forEach((interval: Interval, index: number) => {
@@ -74,9 +74,49 @@ export async function solveThirdQuestion(
     });
   });
 
+  overlapIntervals.forEach((interval: Interval, index: number) => {
+    const start = interval.start;
+    const end = interval.end;
+    const intervalIndex = index;
+
+    overlapIntervals.forEach((interval: Interval, index: number) => {
+      if (
+        (start < interval.start && end > interval.start) ||
+        (start > interval.start && start < interval.end)
+      ) {
+        let earliestStart;
+        let latestEnd;
+        // create an interval of the earliest to the latest and remove the constituents
+        if (start <= interval.start) {
+          earliestStart = start;
+        } else {
+          earliestStart = interval.start;
+        }
+
+        if (end <= interval.end) {
+          latestEnd = end;
+        } else {
+          latestEnd = interval.end;
+        }
+        overlapIntervals.push({ start: earliestStart, end: latestEnd });
+        // overlapIntervals.splice(index, 1);
+        // overlapIntervals.splice(intervalIndex, 1);
+      }
+    });
+  });
+
   // *** This isn't working because checkForOverlaps is an
   // exclusive check - it only uses the bit where there is overlap.
   // I need inclusive - if there is overlap go from earliest to latest.
+  // *** YES, THIS
+  // An inclusiveInterval goes from the earliest to the latest times
+  // of the two intervals the overlap...
+  // ...to be used against the conjoined intervals to create an array of 2 worker free intervals.
+  // Then the exclusiveInterval, the bit where they overlap is already a result BUT
+  // would still need to be checked against the array created above
+  // to see if any of those intervals can be elongated
+
+  // consolidateOverlaps <- *****
 
   // const remainingOverlaps = checkForOverlaps(overlapIntervals);
   // console.log("RemainingOverlaps ", remainingOverlaps);
@@ -85,7 +125,7 @@ export async function solveThirdQuestion(
   //   overlapIntervals.push(conjoinIntervals(remainingOverlaps));
   // }
 
-  console.log("overlapIntervals2 ", overlapIntervals);
+  // console.log("overlapIntervals2 ", overlapIntervals);
 
   const isoIntervals: Interval[] = [];
   overlapIntervals.forEach((interval: Interval) => {
@@ -95,11 +135,11 @@ export async function solveThirdQuestion(
     isoIntervals.push(isoInterval);
   });
 
-  console.log("isoIntervals", isoIntervals);
+  // console.log("isoIntervals", isoIntervals);
 
   const uniqueIntervals: any[] = [...Array.from(new Set(isoIntervals))];
 
-  console.log("uniqueIntervals", uniqueIntervals);
+  // console.log("uniqueIntervals", uniqueIntervals);
 
   // return overlapIntervals;
   return uniqueIntervals;
@@ -114,30 +154,7 @@ const getAllIntervals = (workers: Worker[]) => {
   });
 
   const conjoinedIntervals = conjoinIntervals(intervals);
-  // conjoin consequecutive intervals
-  // intervals.forEach((interval: Interval, index: number) => {
-  //   const start = interval.start;
-  //   const end = interval.end;
-  //   const intervalIndex = index;
 
-  //   intervals.forEach((interval: Interval, index: number) => {
-  //     if (interval.start === end) {
-  //       const newInterval: any = { start: start, end: interval.end };
-
-  //       // intervals.splice(index, 1);
-  //       // intervals.splice(intervalIndex, 1);
-  //       intervals.push(newInterval);
-  //     }
-
-  //     if (start === interval.end) {
-  //       const newInterval: any = { start: interval.start, end: end };
-
-  //       // intervals.splice(index, 1);
-  //       // intervals.splice(intervalIndex, 1);
-  //       intervals.push(newInterval);
-  //     }
-  //   });
-  // });
   console.log("conjoinedIntervals  ", conjoinedIntervals);
 
   return conjoinedIntervals;
@@ -151,12 +168,14 @@ const checkForOverlaps = (allIntervals: any[]) => {
     const end = interval.end;
     const intervalIndex = index;
 
-    console.log("Interval ", interval);
+    // console.log("Interval ", interval);
 
     allIntervals.forEach((interval: Interval, index: number) => {
       const comparatorStart = interval.start;
       const comparatorEnd = interval.end;
 
+      // These two if statements duplicate results. They kinda work but now de-duping
+      // needs done.
       if (
         start < comparatorStart &&
         end > comparatorStart &&
@@ -193,7 +212,7 @@ const checkForOverlaps = (allIntervals: any[]) => {
           // start to comparatorEnd
           overlapInterval = { start: start, end: comparatorEnd };
         }
-        console.log("overlapInterval ", overlapInterval);
+        // console.log("overlapInterval2 ", overlapInterval);
 
         overlapIntervals.push(overlapInterval);
       }
@@ -209,20 +228,25 @@ const conjoinIntervals = (intervals: any) => {
     const end = interval.end;
     const intervalIndex = index;
 
+    // console.log("end", end);
+    // How about... create a new type... conjoined interval...
+    // which has start, end and the two indexes of the constituent intervals
+    // no, the indexes are already stripped out.
+
     intervals.forEach((interval: Interval, index: number) => {
       if (interval.start === end) {
         const newInterval: any = { start: start, end: interval.end };
 
-        // intervals.splice(index, 1);
-        // intervals.splice(intervalIndex, 1);
+        intervals.splice(index, 1);
+        intervals.splice(intervalIndex, 1);
         intervals.push(newInterval);
       }
 
       if (start === interval.end) {
         const newInterval: any = { start: interval.start, end: end };
 
-        // intervals.splice(index, 1);
-        // intervals.splice(intervalIndex, 1);
+        intervals.splice(index, 1);
+        intervals.splice(intervalIndex, 1);
         intervals.push(newInterval);
       }
     });
